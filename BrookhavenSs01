@@ -1,0 +1,95 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+
+local Window = Library.CreateLib("test", "Ocean")
+
+local Tab = Window:NewTab("credits")
+
+
+
+local MainTab = Window:NewTab("Main")
+local MainSection = MainTab:NewSection("Fling Menu")
+
+-- Function Fling
+local fling = false
+
+local function FlingAll()
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    if not char then return end
+
+    local humanoid = char:FindFirstChild("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local seat = humanoid.SeatPart
+    if not seat then
+        warn("sitting in a vehicle ")
+        return
+    end
+
+    local vehicle = seat.Parent
+
+    fling = true
+    while fling do
+        for _, plr in pairs(game.Players:GetPlayers()) do
+            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                vehicle:SetPrimaryPartCFrame(plr.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-3))
+                vehicle.PrimaryPart.Velocity = Vector3.new(500,500,500)
+            end
+        end
+        task.wait(0.1)
+    end
+end
+
+-- Button
+MainSection:NewButton("Fling All (Vehicle)", "Fling all vehicle ", function()
+    FlingAll()
+end)
+
+MainSection:NewButton("Stop Fling", "stop fling", function()
+    fling = false
+end)
+
+
+
+local Tab = Window:NewTab("Avatar")
+local Section = Tab:NewSection("Copy Avatar")
+
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+
+-- Cari player terdekat
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = (LP.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+            if dist < shortestDistance then
+                shortestDistance = dist
+                closestPlayer = plr
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Copy Avatar
+local function copyAvatar()
+    local target = getClosestPlayer()
+    if not target then
+        warn("Tidak ada player di dekatmu!")
+        return
+    end
+
+    local humDesc = target.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
+    LP.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(humDesc)
+end
+
+-- Button
+Section:NewButton("Copy Avatar", "copy wait", function()
+    copyAvatar()
+end)
+
+
